@@ -16,4 +16,12 @@ public class Member {
 
     @Column(nullable = false)
     private String name;
+
+    public Member(Long memberId, String email, String password, String name) {
+        this.memberId = memberId;
+        this.email = email;
+        this.password = password;
+        this.name = name;
+    }
+
 }
