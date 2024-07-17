@@ -16,9 +16,9 @@ import java.util.Date;
 public class JwtService {
     private SecretKey key = Jwts.SIG.HS256.key().build();
 
-    public String createJWT(Long id) {
+    public String createJWT(String email) {
         return Jwts.builder()
-                .claim("id", id)
+                .claim("email", email)
                 .signWith(key)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 60 * 10000))
