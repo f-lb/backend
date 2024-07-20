@@ -39,15 +39,18 @@ public class JwtService {
         return token.replace("Bearer ", "");
     }
 
-    public String getMemberId() {
-        String accessToken = getJWT();
-
+    public void checkTokenValidation(String accessToken){
         if (accessToken == null) {
             throw new JwtException("토큰이 유효하지 않습니다.");
         }
         if (accessToken.isEmpty()) {
             throw new JwtException("토큰이 유효하지 않습니다.");
         }
+    }
+
+    public String getMemberId() {
+        String accessToken = getJWT();
+        checkTokenValidation(accessToken);
         Jws<Claims> jws;
 
         try {
