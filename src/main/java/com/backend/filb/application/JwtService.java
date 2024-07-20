@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -16,12 +17,15 @@ import java.util.Date;
 public class JwtService {
     private SecretKey key = Jwts.SIG.HS256.key().build();
 
+    @Value("${token.expiration}")
+    private int tokenExpiration;
+
     public String createJWT(String email) {
         return Jwts.builder()
                 .claim("email", email)
                 .signWith(key)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 60 * 10000))
+                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
                 .compact();
     }
 

@@ -25,7 +25,6 @@ public class Member {
     }
 
     public Member() {
-
     }
 
     public String getPassword() {
