@@ -20,10 +20,9 @@ public class MemberService {
 
     public Member join(MemberRequest memberRequest) {
         Member member = MapMemberRequestToMember(memberRequest);
-        if (!memberRepository.existsByEmail(memberRequest.email())) {
-            return memberRepository.save(member);
-        }
-        throw new NoSuchElementException("이미 존재하는 회원입니다.");
+        memberRepository.findByEmail(memberRequest.email())
+                .orElseThrow(() -> new NoSuchElementException("이미 존재하는 회원입니다."));
+        return memberRepository.save(member);
     }
 
     public String login(MemberRequest memberRequest) {
