@@ -50,4 +50,16 @@ public class DiaryController {
         headers.add("Message", "success");
         return ResponseEntity.ok().headers(headers).body(diaryList);
     }
+
+    @PostMapping("/read/{id}")
+    public ResponseEntity<DiaryResponse> readById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("id") Long id
+    ){
+        String jwtId = jwtService.getMemberId();
+        DiaryResponse diaryResponse = diaryService.readById(jwtId,id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Message", "success");
+        return ResponseEntity.ok().headers(headers).body(diaryResponse);
+    }
 }

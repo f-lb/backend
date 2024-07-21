@@ -8,6 +8,7 @@ import com.backend.filb.dto.DiaryResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +37,17 @@ public class DiaryService {
         return diaryList.stream()
                 .map(this::MapDiaryToDiaryResponse)
                 .collect(Collectors.toList());
+    }
+
+    public DiaryResponse readById(String jwtId,Long id) {
+        Diary diary = diaryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("일기 정보가 없습니다."));
+        Member member = memberService.findByEmail(jwtId);
+        List<Diary> diaryList = member.getDiaryList();
+        if (diaryList.contains(diary)) {
+            return MapDiaryToDiaryResponse(diary);
+        }
+        throw new NoSuchElementException("해당 일기에 대한 권한이 없습니다.");
     }
 
     public Diary MapDiaryRequestToDiary(DiaryRequest diaryRequest){
