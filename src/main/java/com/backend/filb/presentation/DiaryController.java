@@ -62,4 +62,16 @@ public class DiaryController {
         headers.add("Message", "success");
         return ResponseEntity.ok().headers(headers).body(diaryResponse);
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity delete(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("id") Long id
+    ){
+        String jwtId = jwtService.getMemberId();
+        diaryService.delete(jwtId,id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Message", "success");
+        return ResponseEntity.ok().headers(headers).body(null);
+    }
 }
