@@ -2,19 +2,28 @@ package com.backend.filb.domain.entity;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
-
 @Entity
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reportId;
+
+    @Column(nullable = false)
     private Integer totalEmotion;
+
+    @Column(nullable = false)
     private String feedback;
     @Embedded
+    @Column(nullable = false)
     private Emotions emotions;
+
+    @Column(nullable = false)
     private Integer negativeSentencePercent;
+
+    @Column(nullable = false)
     private Integer positiveSentencePercent;
+
+    @Column(nullable = false)
     private Integer totalSentenceCount;
 
     public Report() {

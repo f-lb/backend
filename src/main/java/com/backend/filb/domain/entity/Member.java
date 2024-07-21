@@ -2,6 +2,8 @@ package com.backend.filb.domain.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 public class Member {
     @Id
@@ -17,11 +19,23 @@ public class Member {
     @Column(nullable = false)
     private String name;
 
-    public Member(Long memberId, String email, String password, String name) {
+    @OneToMany
+    private List<Diary> diaryList;
+
+    public List<Diary> getDiaryList() {
+        return diaryList;
+    }
+
+    public void setDiaryList(List<Diary> diaryList) {
+        this.diaryList = diaryList;
+    }
+
+    public Member(Long memberId, String email, String password, String name, List<Diary> diaryList) {
         this.memberId = memberId;
         this.email = email;
         this.password = password;
         this.name = name;
+        this.diaryList = diaryList;
     }
 
     public Member() {
