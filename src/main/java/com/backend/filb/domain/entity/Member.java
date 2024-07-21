@@ -58,4 +58,8 @@ public class Member {
     public int hashCode() {
         return Objects.hash(memberId);
     }
+
+    public boolean checkPassword(String password){
+        return this.password.equals(password);
+    }
 }

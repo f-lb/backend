@@ -33,7 +33,7 @@ public class MemberService {
     public String login(MemberRequest memberRequest) {
         Member dbMember = memberRepository.findByEmail(memberRequest.email())
                 .orElseThrow(() -> new NoSuchElementException("로그인에 실패했습니다 다시 시도해주세요"));
-        if (!memberRequest.password().equals(dbMember.getPassword())) {
+        if (!dbMember.checkPassword(memberRequest.password())) {
             throw new NoSuchElementException("로그인에 실패하였습니다. 다시 시도해주세요");
         } else {
             return jwtService.createJWT(memberRequest.email());
