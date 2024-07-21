@@ -9,6 +9,7 @@ import com.backend.filb.domain.entity.Report;
 import com.backend.filb.domain.repository.DiaryRepository;
 import com.backend.filb.dto.DiaryRequest;
 import com.backend.filb.dto.DiaryResponse;
+import com.backend.filb.dto.ReportResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,12 +30,12 @@ public class DiaryController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity save(
+    public ResponseEntity<ReportResponse> save(
             @RequestHeader("Authorization") String token,
             @RequestBody DiaryRequest diaryRequest
     ){
         String jwtId = jwtService.getMemberId();
-        diaryService.save(diaryRequest,jwtId);
+        ReportResponse reportResponse = diaryService.save(diaryRequest,jwtId);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");
         return ResponseEntity.ok().headers(headers).body(null);

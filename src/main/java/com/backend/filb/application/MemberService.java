@@ -22,7 +22,7 @@ public class MemberService {
     }
 
     public Member join(MemberRequest memberRequest) {
-        Member member = MapMemberRequestToMember(memberRequest);
+        Member member = mapMemberRequestToMember(memberRequest);
         memberRepository.findByEmail(memberRequest.email())
                 .ifPresent(existingMember -> {
                     throw new IllegalArgumentException("이미 존재하는 회원입니다.");
@@ -35,12 +35,11 @@ public class MemberService {
                 .orElseThrow(() -> new NoSuchElementException("로그인에 실패했습니다 다시 시도해주세요"));
         if (!dbMember.checkPassword(memberRequest.password())) {
             throw new NoSuchElementException("로그인에 실패하였습니다. 다시 시도해주세요");
-        } else {
-            return jwtService.createJWT(memberRequest.email());
         }
+        return jwtService.createJWT(memberRequest.email());
     }
 
-    private Member MapMemberRequestToMember(MemberRequest memberRequest) {
+    private Member mapMemberRequestToMember(MemberRequest memberRequest) {
         return new Member(null,
                 memberRequest.email(),
                 memberRequest.password(),

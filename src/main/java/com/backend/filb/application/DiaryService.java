@@ -2,10 +2,12 @@ package com.backend.filb.application;
 
 import com.backend.filb.domain.entity.Diary;
 import com.backend.filb.domain.entity.Member;
+import com.backend.filb.domain.entity.Report;
 import com.backend.filb.domain.repository.DiaryRepository;
 import com.backend.filb.domain.repository.MemberRepository;
 import com.backend.filb.dto.DiaryRequest;
 import com.backend.filb.dto.DiaryResponse;
+import com.backend.filb.dto.ReportResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,14 +19,16 @@ public class DiaryService {
     private DiaryRepository diaryRepository;
     private MemberService memberService;
     private MemberRepository memberRepository;
+    private ReportService reportService;
 
-    public DiaryService(DiaryRepository diaryRepository, MemberService memberService,MemberRepository memberRepository){
+    public DiaryService(DiaryRepository diaryRepository, MemberService memberService,MemberRepository memberRepository,ReportService reportService){
         this.diaryRepository = diaryRepository;
         this.memberService = memberService;
         this.memberRepository = memberRepository;
+        this.reportService = reportService;
     }
 
-    public Diary save(DiaryRequest diaryRequest,String jwtId) {
+    public ReportResponse save(DiaryRequest diaryRequest,String jwtId) {
         Diary diary = MapDiaryRequestToDiary(diaryRequest);
         diary = diaryRepository.save(diary);
         Member member = memberService.findByEmail(jwtId);
@@ -32,7 +36,11 @@ public class DiaryService {
         diaryList.add(diary);
         member.setDiaryList(diaryList);
         memberRepository.save(member);
-        return diary;
+
+        //인공지능으로 리포트 돌리기
+
+        Report report = null;
+        return reportService.save(report);
     }
 
     public List<DiaryResponse> readAll(String jwtId) {

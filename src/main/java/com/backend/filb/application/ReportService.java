@@ -16,17 +16,21 @@ public class ReportService {
     public List<ReportResponse> findAll() {
         List<Report> reports = reportRepository.findAll();
         return reports.stream()
-                .map(this::MapRepositoryToResponseRepository)
+                .map(this::mapRepositoryToResponseRepository)
                 .collect(Collectors.toList());
     }
 
     public ReportResponse findByReportId(Long id){
         Report report = reportRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("해당 리포트 정보가 없습니다."));
-        return MapRepositoryToResponseRepository(report);
+        return mapRepositoryToResponseRepository(report);
     }
 
-    private ReportResponse MapRepositoryToResponseRepository(Report report) {
+    public ReportResponse save(Report report) {
+        return mapRepositoryToResponseRepository(reportRepository.save(report));
+    }
+
+    private ReportResponse mapRepositoryToResponseRepository(Report report) {
         return new ReportResponse(
                 report.getReportId(),
                 report.getTotalEmotion(),
