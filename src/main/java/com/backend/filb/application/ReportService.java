@@ -3,12 +3,10 @@ package com.backend.filb.application;
 import com.backend.filb.domain.entity.Report;
 import com.backend.filb.domain.repository.ReportRepository;
 import com.backend.filb.dto.ReportResponse;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

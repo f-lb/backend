@@ -24,7 +24,7 @@ public class MemberController {
     ) {
         memberService.join(memberRequest);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Message", "회원가입에 성공하셨습니다.");
+        headers.add("Message", "success");
         return ResponseEntity.ok().headers(headers).body(null);
     }
 
@@ -35,7 +35,7 @@ public class MemberController {
         String jwt = memberService.login(memberRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", jwt);
-        headers.add("Message","로그인에 성공하셨습니다.");
+        headers.add("Message","login success");
         return ResponseEntity.ok().headers(headers).body(null);
     }
 

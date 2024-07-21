@@ -1,9 +1,6 @@
 package com.backend.filb.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.sql.Date;
 
@@ -12,6 +9,18 @@ public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long diaryId;
+    @Column(nullable = false)
     Date createdDate;
+    @Column(nullable = false)
     String content;
+
+    public Diary(Long diaryId, String content, Date createdDate) {
+        this.diaryId = diaryId;
+        this.content = content;
+        this.createdDate = createdDate;
+    }
+
+    public Diary() {
+
+    }
 }
