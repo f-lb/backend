@@ -20,7 +20,7 @@ public class ReportController {
     @GetMapping
     public ResponseEntity<List<ReportResponse>> readAll(
     ) {
-        return ResponseEntity.ok().body(reportService.findall());
+        return ResponseEntity.ok().body(reportService.findAll());
     }
 
     @GetMapping("/{id}")
