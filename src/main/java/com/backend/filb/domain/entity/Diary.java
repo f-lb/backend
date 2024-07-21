@@ -23,4 +23,16 @@ public class Diary {
     public Diary() {
 
     }
+
+    public Long getDiaryId() {
+        return diaryId;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public String getContent() {
+        return content;
+    }
 }

@@ -6,7 +6,9 @@ import com.backend.filb.application.MemberService;
 import com.backend.filb.domain.entity.Diary;
 import com.backend.filb.domain.entity.Member;
 import com.backend.filb.domain.entity.Report;
+import com.backend.filb.domain.repository.DiaryRepository;
 import com.backend.filb.dto.DiaryRequest;
+import com.backend.filb.dto.DiaryResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,5 +38,16 @@ public class DiaryController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");
         return ResponseEntity.ok().headers(headers).body(null);
+    }
+
+    @PostMapping("/read")
+    public ResponseEntity<List<DiaryResponse>> readAll(
+            @RequestHeader("Authorization") String token
+    ){
+        String jwtId = jwtService.getMemberId();
+        List<DiaryResponse> diaryList = diaryService.readAll(jwtId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Message", "success");
+        return ResponseEntity.ok().headers(headers).body(diaryList);
     }
 }
