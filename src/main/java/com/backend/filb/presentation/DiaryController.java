@@ -46,7 +46,7 @@ public class DiaryController {
         return ResponseEntity.ok().headers(headers).body(diaryList);
     }
 
-    @PostMapping("/read/{id}")
+    @GetMapping("/read/{id}")
     public ResponseEntity<DiaryResponse> readById(
             @RequestHeader("Authorization") String token,
             @PathVariable("id") Long id
