@@ -28,8 +28,8 @@ public class DiaryController {
             @RequestHeader("Authorization") String token,
             @RequestBody DiaryRequest diaryRequest
     ){
-        String jwtId = jwtService.getMemberId();
-        ReportResponse reportResponse = diaryService.save(diaryRequest,jwtId);
+        String jwtEmail = jwtService.getMemberEmail();
+        ReportResponse reportResponse = diaryService.save(diaryRequest,jwtEmail);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");
         return ResponseEntity.ok().headers(headers).body(null);
@@ -39,7 +39,7 @@ public class DiaryController {
     public ResponseEntity<List<DiaryResponse>> readAll(
             @RequestHeader("Authorization") String token
     ){
-        String jwtId = jwtService.getMemberId();
+        String jwtId = jwtService.getMemberEmail();
         List<DiaryResponse> diaryList = diaryService.readAll(jwtId);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");
@@ -51,7 +51,7 @@ public class DiaryController {
             @RequestHeader("Authorization") String token,
             @PathVariable("id") Long id
     ){
-        String jwtId = jwtService.getMemberId();
+        String jwtId = jwtService.getMemberEmail();
         DiaryResponse diaryResponse = diaryService.readById(jwtId,id);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");
@@ -63,7 +63,7 @@ public class DiaryController {
             @RequestHeader("Authorization") String token,
             @PathVariable("id") Long id
     ){
-        String jwtId = jwtService.getMemberId();
+        String jwtId = jwtService.getMemberEmail();
         diaryService.delete(jwtId,id);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");

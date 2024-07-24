@@ -48,7 +48,7 @@ public class JwtService {
         }
     }
 
-    public String getMemberId() {
+    public String getMemberEmail() {
         String accessToken = getJWT();
         checkTokenValidation(accessToken);
         Jws<Claims> jws;

@@ -9,7 +9,7 @@ import java.util.Objects;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberId;
+    private Long memberEmail;
 
     @Column(nullable = false)
     private String email;
@@ -31,8 +31,8 @@ public class Member {
         this.diaryList = diaryList;
     }
 
-    public Member(Long memberId, String email, String password, String name, List<Diary> diaryList) {
-        this.memberId = memberId;
+    public Member(Long memberEmail, String email, String password, String name, List<Diary> diaryList) {
+        this.memberEmail = memberEmail;
         this.email = email;
         this.password = password;
         this.name = name;
@@ -51,12 +51,12 @@ public class Member {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Member member = (Member) o;
-        return Objects.equals(memberId, member.memberId);
+        return Objects.equals(memberEmail, member.memberEmail);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(memberId);
+        return Objects.hash(memberEmail);
     }
 
     public boolean checkPassword(String password){
