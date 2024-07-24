@@ -29,7 +29,7 @@ public class DiaryService {
     }
 
     public ReportResponse save(DiaryRequest diaryRequest,String jwtId) {
-        Diary diary = MapDiaryRequestToDiary(diaryRequest);
+        Diary diary = mapDiaryRequestToDiary(diaryRequest);
         diary = diaryRepository.save(diary);
         Member member = memberService.findByEmail(jwtId);
         List<Diary> diaryList = member.getDiaryList();
@@ -47,7 +47,7 @@ public class DiaryService {
         Member member = memberService.findByEmail(jwtId);
         List<Diary> diaryList = member.getDiaryList();
         return diaryList.stream()
-                .map(this::MapDiaryToDiaryResponse)
+                .map(this::mapDiaryToDiaryResponse)
                 .collect(Collectors.toList());
     }
 
@@ -57,7 +57,7 @@ public class DiaryService {
         Member member = memberService.findByEmail(jwtId);
         List<Diary> diaryList = member.getDiaryList();
         if (diaryList.contains(diary)) {
-            return MapDiaryToDiaryResponse(diary);
+            return mapDiaryToDiaryResponse(diary);
         }
         throw new NoSuchElementException("해당 일기에 대한 권한이 없습니다.");
     }
@@ -77,11 +77,11 @@ public class DiaryService {
         throw new NoSuchElementException("해당 일기에 대한 권한이 없습니다.");
     }
 
-    public Diary MapDiaryRequestToDiary(DiaryRequest diaryRequest){
+    public Diary mapDiaryRequestToDiary(DiaryRequest diaryRequest){
         return new Diary(diaryRequest.diaryId(),diaryRequest.content(),diaryRequest.date());
     }
 
-    public DiaryResponse MapDiaryToDiaryResponse(Diary diary){
+    public DiaryResponse mapDiaryToDiaryResponse(Diary diary){
         return new DiaryResponse(diary.getDiaryId(),diary.getCreatedDate(),diary.getContent());
     }
 
