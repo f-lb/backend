@@ -48,13 +48,13 @@ public class DiaryService {
         List<Diary> diaryList = member.getDiaryList();
         return diaryList.stream()
                 .map(this::mapDiaryToDiaryResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public DiaryResponse readById(String jwtId,Long id) {
+    public DiaryResponse readById(String jwtEmail,Long id) {
         Diary diary = diaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("일기 정보가 없습니다."));
-        Member member = memberService.findByEmail(jwtId);
+        Member member = memberService.findByEmail(jwtEmail);
         List<Diary> diaryList = member.getDiaryList();
         if (diaryList.contains(diary)) {
             return mapDiaryToDiaryResponse(diary);
