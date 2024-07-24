@@ -17,12 +17,10 @@ import java.util.List;
 public class DiaryController {
     private DiaryService diaryService;
     private JwtService jwtService;
-    private MemberService memberService;
 
-    public DiaryController(DiaryService diaryService, JwtService jwtService,MemberService memberService){
+    public DiaryController(DiaryService diaryService, JwtService jwtService){
         this.diaryService = diaryService;
         this.jwtService = jwtService;
-        this.memberService = memberService;
     }
 
     @PostMapping("/save")
