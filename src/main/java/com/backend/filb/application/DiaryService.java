@@ -7,7 +7,7 @@ import com.backend.filb.domain.repository.DiaryRepository;
 import com.backend.filb.domain.repository.MemberRepository;
 import com.backend.filb.dto.DiaryRequest;
 import com.backend.filb.dto.DiaryResponse;
-import com.backend.filb.dto.ReportResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,19 +27,17 @@ public class DiaryService {
         this.reportService = reportService;
     }
 
-    public ReportResponse save(DiaryRequest diaryRequest,String jwtId) {
+    public DiaryResponse save(DiaryRequest diaryRequest, String jwtId) throws JsonProcessingException {
+        Report report = reportService.makeReport(diaryRequest.content());
         Diary diary = mapDiaryRequestToDiary(diaryRequest);
+        diary.setReport(report);
         diary = diaryRepository.save(diary);
         Member member = memberService.findByEmail(jwtId);
         List<Diary> diaryList = member.getDiaryList();
         diaryList.add(diary);
         member.setDiaryList(diaryList);
         memberRepository.save(member);
-
-        //인공지능으로 리포트 돌리기
-
-        Report report = null;
-        return reportService.save(report);
+        return mapDiaryToDiaryResponse(diary);
     }
 
     public List<DiaryResponse> readAll(String jwtId) {
@@ -77,11 +75,11 @@ public class DiaryService {
     }
 
     public Diary mapDiaryRequestToDiary(DiaryRequest diaryRequest){
-        return new Diary(diaryRequest.diaryId(),diaryRequest.content(),diaryRequest.date());
+        return new Diary(diaryRequest.diaryId(),diaryRequest.content(),diaryRequest.date(),diaryRequest.report());
     }
 
     public DiaryResponse mapDiaryToDiaryResponse(Diary diary){
-        return new DiaryResponse(diary.getDiaryId(),diary.getCreatedDate(),diary.getContent());
+        return new DiaryResponse(diary.getDiaryId(),diary.getCreatedDate(),diary.getContent(),diary.getReport());
     }
 
 }
