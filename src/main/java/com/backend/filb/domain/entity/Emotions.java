@@ -8,13 +8,23 @@ public class Emotions {
     @Column(nullable = false)
     private Integer happiness;
     @Column(nullable = false)
-    private Integer discomfort;
+    private Integer embarrassment;
     @Column(nullable = false)
-    private Integer fear;
-    @Column(nullable = false)
-    private Integer surprise;
+    private Integer anxiety;
     @Column(nullable = false)
     private Integer anger;
     @Column(nullable = false)
     private Integer sadness;
+
+    public Emotions(Integer anxiety,Integer embarrassment,Integer anger,Integer sadness,Integer happiness) {
+        this.happiness = happiness;
+        this.embarrassment = embarrassment;
+        this.anxiety = anxiety;
+        this.anger = anger;
+        this.sadness = sadness;
+    }
+
+    public Emotions() {
+
+    }
 }
