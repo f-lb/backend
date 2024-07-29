@@ -1,4 +1,4 @@
-package com.backend.filb.dto;
+package com.backend.filb.dto.response;
 
 import com.backend.filb.domain.entity.Report;
 

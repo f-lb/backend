@@ -1,7 +1,7 @@
 package com.backend.filb.presentation;
 
 import com.backend.filb.application.ReportService;
-import com.backend.filb.dto.ReportResponse;
+import com.backend.filb.dto.response.ReportResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

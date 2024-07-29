@@ -1,6 +1,6 @@
 package com.backend.filb;
 
-import com.backend.filb.dto.DiaryRequestToAi;
+import com.backend.filb.dto.request.DiaryRequestToAi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
