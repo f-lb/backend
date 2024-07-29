@@ -2,8 +2,10 @@ package com.backend.filb.presentation;
 
 import com.backend.filb.application.DiaryService;
 import com.backend.filb.application.JwtService;
-import com.backend.filb.dto.DiaryRequest;
-import com.backend.filb.dto.DiaryResponse;
+import com.backend.filb.dto.request.DiaryRequest;
+import com.backend.filb.dto.response.DiaryResponse;
+import com.backend.filb.dto.response.ReportResultResponse;
+import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -23,15 +25,15 @@ public class DiaryController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<DiaryResponse> save(
+    public ResponseEntity<ReportResultResponse> save(
             @RequestHeader("Authorization") String token,
             @RequestBody DiaryRequest diaryRequest
     ) throws JsonProcessingException {
         String jwtEmail = jwtService.getMemberEmail();
-        DiaryResponse diaryResponse = diaryService.save(diaryRequest,jwtEmail);
+        ReportResultResponse reportResultResponse = diaryService.save(diaryRequest,jwtEmail);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");
-        return ResponseEntity.ok().headers(headers).body(diaryResponse);
+        return ResponseEntity.ok().headers(headers).body(reportResultResponse);
     }
 
     @PostMapping("/read")

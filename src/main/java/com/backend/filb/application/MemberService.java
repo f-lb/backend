@@ -3,7 +3,8 @@ package com.backend.filb.application;
 import com.backend.filb.domain.entity.Diary;
 import com.backend.filb.domain.entity.Member;
 import com.backend.filb.domain.repository.MemberRepository;
-import com.backend.filb.dto.MemberRequest;
+import com.backend.filb.dto.request.MemberLoginRequest;
+import com.backend.filb.dto.request.MemberRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,10 +27,11 @@ public class MemberService {
                 .ifPresent(existingMember -> {
                     throw new IllegalArgumentException("이미 존재하는 회원입니다.");
                 });
+        member.validatePassword(memberRequest.password());
         return memberRepository.save(member);
     }
 
-    public String login(MemberRequest memberRequest) {
+    public String login(MemberLoginRequest memberRequest) {
         Member dbMember = memberRepository.findByEmail(memberRequest.email())
                 .orElseThrow(() -> new NoSuchElementException("로그인에 실패했습니다 다시 시도해주세요"));
         if (!dbMember.checkPassword(memberRequest.password())) {

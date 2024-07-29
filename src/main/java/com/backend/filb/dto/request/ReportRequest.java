@@ -1,4 +1,4 @@
-package com.backend.filb.dto;
+package com.backend.filb.dto.request;
 
 import com.backend.filb.domain.entity.Emotions;
 import jakarta.persistence.Embedded;

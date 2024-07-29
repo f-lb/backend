@@ -1,13 +1,12 @@
 package com.backend.filb.presentation;
 
 import com.backend.filb.application.MemberService;
-import com.backend.filb.dto.MemberRequest;
+import com.backend.filb.dto.request.MemberLoginRequest;
+import com.backend.filb.dto.request.MemberRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/members")
@@ -19,8 +18,8 @@ public class MemberController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity join(
-            @RequestBody MemberRequest memberRequest
+    public ResponseEntity<Void> join(
+            @RequestBody @Valid MemberRequest memberRequest
     ) {
         memberService.join(memberRequest);
         HttpHeaders headers = new HttpHeaders();
@@ -30,7 +29,7 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(
-            @RequestBody MemberRequest memberRequest
+            @RequestBody MemberLoginRequest memberRequest
     ) {
         String jwt = memberService.login(memberRequest);
         HttpHeaders headers = new HttpHeaders();
