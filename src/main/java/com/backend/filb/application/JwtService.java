@@ -25,7 +25,7 @@ public class JwtService {
                 .claim("email", email)
                 .signWith(key)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + tokenExpiration))
+                .setExpiration(new Date(System.currentTimeMillis() + (tokenExpiration *1000)))
                 .compact();
     }
 
@@ -48,7 +48,7 @@ public class JwtService {
         }
     }
 
-    public String getMemberId() {
+    public String getMemberEmail() {
         String accessToken = getJWT();
         checkTokenValidation(accessToken);
         Jws<Claims> jws;
@@ -63,6 +63,6 @@ public class JwtService {
         }
 
         return jws.getPayload()
-                .get("id", String.class);
+                .get("email", String.class);
     }
 }
