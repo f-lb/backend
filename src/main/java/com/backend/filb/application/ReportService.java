@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 public class ReportService {
     private ReportRepository reportRepository;
 
+    private final int NUMBER_OF_EMOTION = 6;
+
     public ReportService(ReportRepository reportRepository){
         this.reportRepository = reportRepository;
     }
@@ -67,7 +69,7 @@ public class ReportService {
 
         Map<String, Integer> predictions = (Map<String, Integer>) map.get("predictions");
 
-        int[] emotions = new int[5];
+        int[] emotions = new int[NUMBER_OF_EMOTION];
 
         for (Integer value : predictions.values()) {
             if (value >= 0 && value < emotions.length) {
@@ -76,9 +78,9 @@ public class ReportService {
         }
 
         int sum = Arrays.stream(emotions).sum();
-        int[] persentOfEmotions = new int[5];
+        int[] persentOfEmotions = new int[NUMBER_OF_EMOTION];
 
-        for (int i = 0;i<5;i++) {
+        for (int i = 0;i<NUMBER_OF_EMOTION;i++) {
             persentOfEmotions[i] = (int)(((double)emotions[i] / sum) * 100);
         }
 
@@ -89,10 +91,10 @@ public class ReportService {
         String feedBack = "";
 
         Emotions emotionsResult = new Emotions(persentOfEmotions[0],persentOfEmotions[1]
-                ,persentOfEmotions[2],persentOfEmotions[3],persentOfEmotions[4]);
+                ,persentOfEmotions[2],persentOfEmotions[3],persentOfEmotions[4],persentOfEmotions[5]);
 
-        int positiveSentencePercent = persentOfEmotions[4];
-        int negativeSentencePercent = 100 - persentOfEmotions[4];
+        int positiveSentencePercent = persentOfEmotions[0];
+        int negativeSentencePercent = 100 - persentOfEmotions[0] - persentOfEmotions[5];
 
         int totalSentenceCount = sum;
 
