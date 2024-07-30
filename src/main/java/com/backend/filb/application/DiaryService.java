@@ -40,7 +40,7 @@ public class DiaryService {
     public ReportResultResponse save(DiaryRequest diaryRequest, String jwtId) throws JsonProcessingException {
         Diary diary = mapDiaryRequestToDiary(diaryRequest);
         ResponseEntity<Object> emotionResponse = emotionApi.getEmotionResponse(diaryRequest.content());
-        Report report = Report.from(emotionResponse);
+        Report report = Report.from(emotionResponse,diaryRequest.content());
         reportRepository.save(report);
         diary.setReport(report);
         diary = diaryRepository.save(diary);
@@ -51,11 +51,11 @@ public class DiaryService {
     }
 
     public List<DiaryResponse> readAll(String jwtId) {
-        Member member = memberService.findByEmail(jwtId);
-        List<Diary> diaryList = member.getDiaryList();
-        return diaryList.stream()
-                .map(this::mapDiaryToDiaryResponse)
-                .toList();
+//        Member member = memberService.findByEmail(jwtId);
+//        List<Diary> diaryList = member.getDiaryList();
+//        return diaryList.stream()
+//                .map(this::mapDiaryToDiaryResponse)
+//                .toList();
         return null;
     }
 

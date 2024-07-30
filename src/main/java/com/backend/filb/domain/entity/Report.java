@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ public class Report {
         this.totalSentenceCount = totalSentenceCount;
     }
 
-    public static Report from(ResponseEntity<Object> responseEntity) throws JsonProcessingException {
+    public static Report from(ResponseEntity<Object> responseEntity,String content) throws JsonProcessingException {
         Map<String, Object> map = parseResponse(responseEntity);
 
         Map<String, Integer> predictions = getPredictions(map);
@@ -62,7 +63,7 @@ public class Report {
         int[] emotionPercentages = calculateEmotionPercentages(emotionCounts, totalSentences);
 
         int totalEmotion = calculateTotalEmotion(emotionPercentages);
-        String feedback = generateFeedback(emotionPercentages);
+        String feedback = generateFeedback(content);
 
         Emotions emotions = new Emotions(emotionPercentages[0], emotionPercentages[1], emotionPercentages[2],
                 emotionPercentages[3], emotionPercentages[4], emotionPercentages[5]);
@@ -106,11 +107,11 @@ public class Report {
     }
 
     private static int calculateTotalEmotion(int[] emotionPercentages) {
-        // 감정 합계를 계산하는 로직 필요 (임의로 0으로 설정)
+        RestTemplate restTemplate = new RestTemplate();
         return 0;
     }
 
-    private static String generateFeedback(int[] emotionPercentages) {
+    private static String generateFeedback(String content) {
         // 피드백 생성 로직 필요 (임의로 빈 문자열로 설정)
         return "";
     }
