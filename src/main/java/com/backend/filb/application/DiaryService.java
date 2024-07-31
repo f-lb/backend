@@ -54,30 +54,16 @@ public class DiaryService {
         return diaryRepository.findDiariesByMemberAndMonth(member.getEmail(), month);
     }
 
-    public DiaryResponse readById(String jwtEmail,Long id) {
+    public DiaryResponse readById(String jwtEmail, Long id) {
         Diary diary = diaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("일기 정보가 없습니다."));
-        Member member = memberService.findByEmail(jwtEmail);
-        List<Diary> diaryList = member.getDiaryList();
-//        if (diaryList.contains(diary)) {
-//            return mapDiaryToDiaryResponse(diary);
-//        }
-        throw new NoSuchElementException("해당 일기에 대한 권한이 없습니다.");
+        return new DiaryResponse(diary.getDiaryId(), diary.getCreatedDate(), diary.getContent());
     }
 
     public void delete(String jwtId, Long id) {
         Diary diary = diaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("일기 정보가 없습니다."));
-        Member member = memberService.findByEmail(jwtId);
-        List<Diary> diaryList = member.getDiaryList();
-//        if (diaryList.contains(diary)) {
-//            diaryList.remove(diary);
-//            member.setDiaryList(diaryList);
-//            memberRepository.save(member);
-//            diaryRepository.deleteById(id);
-//            return;
-//        }
-        throw new NoSuchElementException("해당 일기에 대한 권한이 없습니다.");
+        diaryRepository.delete(diary);
     }
 
     public Diary mapDiaryRequestToDiary(DiaryRequest diaryRequest){

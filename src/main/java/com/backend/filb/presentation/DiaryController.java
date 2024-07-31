@@ -49,20 +49,20 @@ public class DiaryController {
         return ResponseEntity.ok().headers(headers).body(diaryList);
     }
 
-    @GetMapping("/read/{id}")
-    public ResponseEntity<DiaryResponse> readById(
+    @GetMapping("/{id}")
+    public ResponseEntity<DiaryResponse> getById(
             @RequestHeader("Authorization") String token,
             @PathVariable("id") Long id
     ){
         String jwtId = jwtService.getMemberEmail();
-        DiaryResponse diaryResponse = diaryService.readById(jwtId,id);
+        DiaryResponse diaryResponse = diaryService.readById(jwtId, id);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");
         return ResponseEntity.ok().headers(headers).body(diaryResponse);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity delete(
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
             @RequestHeader("Authorization") String token,
             @PathVariable("id") Long id
     ){

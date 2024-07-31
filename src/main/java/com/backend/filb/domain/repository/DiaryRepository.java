@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface DiaryRepository extends JpaRepository<Diary,Long> {
 
-    @Query("SELECT new com.backend.filb.dto.response.DiaryMonthlyResponse(d.createdDate, d.totalEmotion) " +
+    @Query("SELECT new com.backend.filb.dto.response.DiaryMonthlyResponse(d.diaryId, d.createdDate, d.totalEmotion) " +
             "FROM Diary d " +
             "WHERE d.member.email = :email " +
             "AND MONTH(d.createdDate) = :month")
