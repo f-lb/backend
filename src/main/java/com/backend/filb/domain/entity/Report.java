@@ -24,6 +24,9 @@ public class Report {
     private Integer totalEmotion;
 
     @Column(nullable = false)
+    private Integer totalEmotionPercent;
+
+    @Column(nullable = false)
     private String feedback;
 
     @Embedded
@@ -40,11 +43,11 @@ public class Report {
     private Integer totalSentenceCount;
 
     public Report() {
-
     }
 
-    public Report(Integer totalEmotion, String feedback, Emotions emotions, Integer negativeSentencePercent, Integer positiveSentencePercent, Integer totalSentenceCount) {
+    public Report(Integer totalEmotion, Integer totalEmotionPercent, String feedback, Emotions emotions, Integer negativeSentencePercent, Integer positiveSentencePercent, Integer totalSentenceCount) {
         this.totalEmotion = totalEmotion;
+        this.totalEmotionPercent = totalEmotionPercent;
         this.feedback = feedback;
         this.emotions = emotions;
         this.negativeSentencePercent = negativeSentencePercent;
@@ -54,23 +57,13 @@ public class Report {
 
     public static Report from(ResponseEntity<Object> responseEntity) throws JsonProcessingException {
         Map<String, Object> map = parseResponse(responseEntity);
-
         Map<String, Integer> predictions = getPredictions(map);
-        int[] emotionCounts = countEmotions(predictions);
 
+        int[] emotionCounts = countEmotions(predictions);
         int totalSentences = calculateTotalSentences(emotionCounts);
         int[] emotionPercentages = calculateEmotionPercentages(emotionCounts, totalSentences);
 
-        int totalEmotion = calculateTotalEmotion(emotionPercentages);
-        String feedback = generateFeedback(emotionPercentages);
-
-        Emotions emotions = new Emotions(emotionPercentages[0], emotionPercentages[1], emotionPercentages[2],
-                emotionPercentages[3], emotionPercentages[4], emotionPercentages[5]);
-
-        int positiveSentencePercent = emotionPercentages[0];
-        int negativeSentencePercent = 100 - emotionPercentages[0] - emotionPercentages[5];
-
-        return new Report(totalEmotion, feedback, emotions, negativeSentencePercent, positiveSentencePercent, totalSentences);
+        return createReport(emotionPercentages, totalSentences);
     }
 
     private static Map<String, Object> parseResponse(ResponseEntity<Object> responseEntity) throws JsonProcessingException {
@@ -105,14 +98,34 @@ public class Report {
         return emotionPercentages;
     }
 
-    private static int calculateTotalEmotion(int[] emotionPercentages) {
-        // 감정 합계를 계산하는 로직 필요 (임의로 0으로 설정)
-        return 0;
+    private static Report createReport(int[] emotionPercentages, int totalSentences) {
+        int totalEmotionIndex = findMaxEmotionIndex(emotionPercentages);
+        int totalEmotionPercent = emotionPercentages[totalEmotionIndex];
+        String feedback = generateFeedback(emotionPercentages);
+
+        Emotions emotions = new Emotions(
+                emotionPercentages[0], emotionPercentages[1], emotionPercentages[2],
+                emotionPercentages[3], emotionPercentages[4], emotionPercentages[5]
+        );
+
+        int positiveSentencePercent = emotionPercentages[0];
+        int negativeSentencePercent = 100 - positiveSentencePercent - emotionPercentages[5];
+
+        return new Report(totalEmotionIndex, totalEmotionPercent, feedback, emotions, negativeSentencePercent, positiveSentencePercent, totalSentences);
+    }
+
+    private static int findMaxEmotionIndex(int[] emotionPercentages) {
+        int maxIndex = 0;
+        for (int i = 1; i < NUMBER_OF_EMOTION; i++) {
+            if (emotionPercentages[i] > emotionPercentages[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
     }
 
     private static String generateFeedback(int[] emotionPercentages) {
         // 피드백 생성 로직 필요 (임의로 빈 문자열로 설정)
         return "";
     }
-
 }
