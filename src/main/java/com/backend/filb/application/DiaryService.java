@@ -59,7 +59,7 @@ public class DiaryService {
     public DiaryResponse readById(String jwtEmail, Long id) {
         Diary diary = diaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("일기 정보가 없습니다."));
-        return new DiaryResponse(diary.getDiaryId(), diary.getCreatedDate(), diary.getContent());
+        return new DiaryResponse(diary.getDiaryId(), diary.getCreatedDate(), diary.getTitle(), diary.getContent(), diary.getTotalEmotion());
     }
 
     public void delete(String jwtId, Long id) {
@@ -69,7 +69,7 @@ public class DiaryService {
     }
 
     public Diary mapDiaryRequestToDiary(DiaryRequest diaryRequest, Member member){
-        return new Diary(diaryRequest.date(), diaryRequest.content(), member);
+        return new Diary(diaryRequest.title(), diaryRequest.date(), diaryRequest.content(), member);
     }
 
     public ReportResultResponse mapToReportResult(Diary diary, Report report){

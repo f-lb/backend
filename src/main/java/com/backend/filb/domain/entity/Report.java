@@ -1,5 +1,7 @@
 package com.backend.filb.domain.entity;
 
+import com.backend.filb.dto.response.ReportResponse;
+import com.backend.filb.dto.response.ReportResultResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -128,5 +130,18 @@ public class Report {
     private static String generateFeedback(int[] emotionPercentages) {
         // 피드백 생성 로직 필요 (임의로 빈 문자열로 설정)
         return "";
+    }
+
+    public static ReportResultResponse toDto(Diary diary, Report report) {
+        return new ReportResultResponse(
+                diary.getCreatedDate(),
+                report.getEmotions(),
+                report.getTotalEmotion(),
+                report.getTotalEmotionPercent(),
+                report.getFeedback(),
+                report.getTotalSentenceCount(),
+                report.getPositiveSentencePercent(),
+                report.getNegativeSentencePercent()
+        );
     }
 }

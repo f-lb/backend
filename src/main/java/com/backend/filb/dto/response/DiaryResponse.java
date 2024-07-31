@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 public record DiaryResponse(
         Long diaryId,
         LocalDateTime createdDate,
-        String content
+        String title,
+        String content,
+        Integer emotionType
 ) {
 }

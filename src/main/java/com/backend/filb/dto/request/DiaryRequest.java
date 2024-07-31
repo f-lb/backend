@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public record DiaryRequest(
         LocalDateTime date,
+        String title,
         String content
 ) {
 }

@@ -22,7 +22,7 @@ public class Member {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Diary> diaryList;
 
     public Member(Long memberId, String email, String password, String name, List<Diary> diaryList) {

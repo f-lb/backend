@@ -15,12 +15,15 @@ public class Diary {
     private Long diaryId;
 
     @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
     private LocalDateTime createdDate;
 
     @Column(nullable = false,length = 1000)
     private String content;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn()
     private Report report;
 
@@ -30,7 +33,8 @@ public class Diary {
 
     private Integer totalEmotion;
 
-    public Diary(LocalDateTime createdDate, String content, Member member) {
+    public Diary(String title, LocalDateTime createdDate, String content, Member member) {
+        this.title = title;
         this.createdDate = createdDate;
         this.content = content;
         this.member = member;
