@@ -37,10 +37,10 @@ public class DiaryController {
         return ResponseEntity.ok().headers(headers).body(reportResultResponse);
     }
 
-    @PostMapping("/monthly/{month}")
+    @GetMapping("/monthly/{month}")
     public ResponseEntity<List<DiaryMonthlyResponse>> getMonthlyDiaries(
             @RequestHeader("Authorization") String token,
-            @PathVariable("month") Integer month
+            @PathVariable("month") int month
     ){
         String jwtId = jwtService.getMemberEmail();
         List<DiaryMonthlyResponse> diaryList = diaryService.getMonthlyDiaries(jwtId, month);

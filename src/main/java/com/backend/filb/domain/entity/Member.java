@@ -11,7 +11,7 @@ import java.util.Objects;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberEmail;
+    private Long memberId;
 
     @Column(nullable = false)
     private String email;
@@ -25,8 +25,8 @@ public class Member {
     @OneToMany
     private List<Diary> diaryList;
 
-    public Member(Long memberEmail, String email, String password, String name, List<Diary> diaryList) {
-        this.memberEmail = memberEmail;
+    public Member(Long memberId, String email, String password, String name, List<Diary> diaryList) {
+        this.memberId = memberId;
         this.email = email;
         this.password = password;
         this.name = name;
@@ -34,19 +34,6 @@ public class Member {
     }
 
     public Member() {
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Member member = (Member) o;
-        return Objects.equals(memberEmail, member.memberEmail);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(memberEmail);
     }
 
     public boolean checkPassword(String password){

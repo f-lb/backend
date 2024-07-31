@@ -27,15 +27,16 @@ public class Diary {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Member member;
+
     private Integer totalEmotion;
 
-    public Diary(LocalDateTime createdDate, String content) {
+    public Diary(LocalDateTime createdDate, String content, Member member) {
         this.createdDate = createdDate;
         this.content = content;
+        this.member = member;
     }
 
     public Diary() {
-
     }
 
     public void setReport(Report report) {

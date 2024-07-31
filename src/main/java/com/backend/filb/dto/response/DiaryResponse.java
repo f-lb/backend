@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 public record DiaryResponse(
         Long diaryId,
         LocalDateTime createdDate,
-        String content,
+        String content
 ) {
 }

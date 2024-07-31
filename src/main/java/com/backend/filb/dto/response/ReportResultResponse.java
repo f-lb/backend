@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 public record ReportResultResponse(
     LocalDateTime createdDate,
     Emotions emotions,
-    Integer totalEmotion,
+    Integer totalEmotionType,
+    Integer totalEmotionPercent,
     String feedback,
     Integer totalSentenceCount,
     Integer positiveSentencePercent,

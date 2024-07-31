@@ -13,6 +13,7 @@ import com.backend.filb.dto.response.ReportResultResponse;
 import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
+@Slf4j
 public class DiaryService {
     private DiaryRepository diaryRepository;
     private MemberService memberService;
@@ -37,21 +39,21 @@ public class DiaryService {
 
     @Transactional
     public ReportResultResponse save(DiaryRequest diaryRequest, String jwtId) throws JsonProcessingException {
-        Diary diary = mapDiaryRequestToDiary(diaryRequest);
+        Member member = memberService.findByEmail(jwtId);
+        Diary diary = mapDiaryRequestToDiary(diaryRequest, member);
         ResponseEntity<Object> emotionResponse = emotionApi.getEmotionResponse(diaryRequest.content());
         Report report = Report.of(emotionResponse, diary);
         reportRepository.save(report);
         diary.setReport(report);
         diary = diaryRepository.save(diary);
-        Member member = memberService.findByEmail(jwtId);
         member.setDiary(diary);
         memberRepository.save(member);
         return mapToReportResult(diary, report);
     }
 
-    public List<DiaryMonthlyResponse> getMonthlyDiaries(String jwtId, Integer month) {
+    public List<DiaryMonthlyResponse> getMonthlyDiaries(String jwtId, int month) {
         Member member = memberService.findByEmail(jwtId);
-        return diaryRepository.findDiariesByMemberAndMonth(member.getEmail(), month);
+        return diaryRepository.findDiariesByMemberAndMonth(member, month);
     }
 
     public DiaryResponse readById(String jwtEmail, Long id) {
@@ -66,12 +68,12 @@ public class DiaryService {
         diaryRepository.delete(diary);
     }
 
-    public Diary mapDiaryRequestToDiary(DiaryRequest diaryRequest){
-        return new Diary(diaryRequest.date(), diaryRequest.content());
+    public Diary mapDiaryRequestToDiary(DiaryRequest diaryRequest, Member member){
+        return new Diary(diaryRequest.date(), diaryRequest.content(), member);
     }
 
     public ReportResultResponse mapToReportResult(Diary diary, Report report){
-        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent());
+        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getTotalEmotionPercent(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent());
     }
 
 }
