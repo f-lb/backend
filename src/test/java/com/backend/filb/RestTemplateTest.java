@@ -33,8 +33,6 @@ public class RestTemplateTest {
         ResponseEntity<Object> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity,
                 Object.class);
 
-        System.out.println("결과값");
-        System.out.println(responseEntity.getBody());
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(responseEntity.getBody());

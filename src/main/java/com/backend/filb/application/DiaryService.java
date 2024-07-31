@@ -12,8 +12,9 @@ import com.backend.filb.dto.response.DiaryResponse;
 import com.backend.filb.dto.response.ReportResultResponse;
 import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
-@Slf4j
 public class DiaryService {
     private DiaryRepository diaryRepository;
     private MemberService memberService;
@@ -43,6 +43,7 @@ public class DiaryService {
         Diary diary = mapDiaryRequestToDiary(diaryRequest, member);
         ResponseEntity<Object> emotionResponse = emotionApi.getEmotionResponse(diaryRequest.content());
         Report report = Report.of(emotionResponse, diary);
+        report.setFeedback(getFeedBack(diaryRequest.content()));
         reportRepository.save(report);
         diary.setReport(report);
         diary = diaryRepository.save(diary);
@@ -54,6 +55,17 @@ public class DiaryService {
     public List<DiaryMonthlyResponse> getMonthlyDiaries(String jwtId, int month) {
         Member member = memberService.findByEmail(jwtId);
         return diaryRepository.findDiariesByMemberAndMonth(member, month);
+    }
+
+    public String getFeedBack(String content) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ResponseEntity<Object> feedBack = emotionApi.getReport(content);
+        String responseBody = objectMapper.writeValueAsString(feedBack.getBody());
+
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+        String extractedContent = rootNode.path("choices").get(0).path("message").path("content").asText();
+
+        return extractedContent;
     }
 
     public DiaryResponse readById(String jwtEmail, Long id) {
