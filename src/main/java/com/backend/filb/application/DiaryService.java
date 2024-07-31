@@ -11,6 +11,8 @@ import com.backend.filb.dto.response.DiaryResponse;
 import com.backend.filb.dto.response.ReportResultResponse;
 import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,7 @@ public class DiaryService {
         Diary diary = mapDiaryRequestToDiary(diaryRequest);
         ResponseEntity<Object> emotionResponse = emotionApi.getEmotionResponse(diaryRequest.content());
         Report report = Report.from(emotionResponse,diaryRequest.content());
+        report.setFeedback(getFeedBack(diaryRequest.content()));
         reportRepository.save(report);
         diary.setReport(report);
         diary = diaryRepository.save(diary);
@@ -48,6 +51,17 @@ public class DiaryService {
         member.setDiary(diary);
         memberRepository.save(member);
         return mapToReportResult(diary, report);
+    }
+
+    public String getFeedBack(String content) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ResponseEntity<Object> feedBack = emotionApi.getReport(content);
+        String responseBody = objectMapper.writeValueAsString(feedBack.getBody());
+
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+        String extractedContent = rootNode.path("choices").get(0).path("message").path("content").asText();
+
+        return extractedContent;
     }
 
     public List<DiaryResponse> readAll(String jwtId) {

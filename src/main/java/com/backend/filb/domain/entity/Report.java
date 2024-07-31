@@ -1,10 +1,14 @@
 package com.backend.filb.domain.entity;
 
+import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -24,7 +28,7 @@ public class Report {
     @Column(nullable = false)
     private Integer totalEmotion;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 1000)
     private String feedback;
 
     @Embedded
@@ -53,7 +57,11 @@ public class Report {
         this.totalSentenceCount = totalSentenceCount;
     }
 
-    public static Report from(ResponseEntity<Object> responseEntity,String content) throws JsonProcessingException {
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
+    public static Report from(ResponseEntity<Object> responseEntity, String content) throws JsonProcessingException {
         Map<String, Object> map = parseResponse(responseEntity);
 
         Map<String, Integer> predictions = getPredictions(map);
@@ -63,7 +71,7 @@ public class Report {
         int[] emotionPercentages = calculateEmotionPercentages(emotionCounts, totalSentences);
 
         int totalEmotion = calculateTotalEmotion(emotionPercentages);
-        String feedback = generateFeedback(content);
+        String feedback = "";
 
         Emotions emotions = new Emotions(emotionPercentages[0], emotionPercentages[1], emotionPercentages[2],
                 emotionPercentages[3], emotionPercentages[4], emotionPercentages[5]);
@@ -111,9 +119,21 @@ public class Report {
         return 0;
     }
 
-    private static String generateFeedback(String content) {
-        // 피드백 생성 로직 필요 (임의로 빈 문자열로 설정)
-        return "";
+    private static String generateFeedback(String content) throws JsonProcessingException {
+        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        EmotionApi emotionApi = new EmotionApi(restTemplateBuilder,objectMapper);
+
+        ResponseEntity<Object> feedBack = emotionApi.getReport(content);
+        String responseBody = objectMapper.writeValueAsString(feedBack.getBody());
+        System.out.println(responseBody);
+
+        // Parse the response to get the content field
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+        String extractedContent = rootNode.path("choices").get(0).path("message").path("content").asText();
+
+        return extractedContent;
     }
 
 }

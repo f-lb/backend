@@ -5,6 +5,7 @@ import com.backend.filb.dto.request.DiaryRequestToAi;
 import com.backend.filb.dto.request.DiaryRequestToGpt;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,9 @@ public class EmotionApi {
     private final String analyzeEmotionApiUrl = "http://localhost:8000/predict";
     private final String chatGptUrl = "https://api.openai.com/v1/chat/completions";
 
+    @Value("${chatgpt.api-key}")
+    private String gptKey;
+
     public EmotionApi(RestTemplateBuilder restTemplateBuilder, ObjectMapper objectMapper) {
         this.restTemplate = restTemplateBuilder.build();
         this.objectMapper = objectMapper;
@@ -40,7 +44,7 @@ public class EmotionApi {
     }
 
     public ResponseEntity<Object> getReport(String content) throws JsonProcessingException {
-        String messages = content + "위 일기에서의 감정을 분석해주고, 공감해주면서 해결책을 제시해줘";
+        String messages = content + " 위 일기에 대해서 ~때문에 ~ 감정을 느끼신 것 같다 형식으로 감정을 공감해주고 해결책을 제시해주는 방향으로 이야기해줘.";
 
         Message message = new Message("user",messages);
         List<Message> messageList = new LinkedList<>();
@@ -52,11 +56,9 @@ public class EmotionApi {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(APPLICATION_JSON);
-        headers.add("Authorization","Bearer 비밀키");
+        headers.add("Authorization","Bearer " + gptKey);
 
         HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-        ResponseEntity<Object> responseEntity = restTemplate.exchange(chatGptUrl, HttpMethod.POST, requestEntity, Object.class);
-        System.out.println(responseEntity.getBody());
         return restTemplate.exchange(chatGptUrl, HttpMethod.POST, requestEntity, Object.class);
     }
 }
