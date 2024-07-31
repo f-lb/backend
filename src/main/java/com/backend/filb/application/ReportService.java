@@ -31,3 +31,4 @@ public class ReportService {
         return Report.toDto(diary, report);
     }
 }
+

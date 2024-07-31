@@ -73,7 +73,7 @@ public class DiaryService {
     }
 
     public ReportResultResponse mapToReportResult(Diary diary, Report report){
-        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getTotalEmotionPercent(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent());
+        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getTotalEmotionPercent(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent(), report.getEmotionSentences());
     }
 
 }

@@ -1,20 +1,20 @@
 package com.backend.filb.domain.entity;
 
-import com.backend.filb.dto.response.ReportResponse;
+import com.backend.filb.domain.entity.vo.EmotionSentence;
 import com.backend.filb.dto.response.ReportResultResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Getter
+@Slf4j
 public class Report {
     private static final int NUMBER_OF_EMOTION = 6;
 
@@ -44,10 +44,13 @@ public class Report {
     @Column(nullable = false)
     private Integer totalSentenceCount;
 
+    @Convert(converter = EmotionSentence.EmotionSentenceConverter.class)
+    private List<EmotionSentence> emotionSentences = new ArrayList<>();
+
     public Report() {
     }
 
-    public Report(Integer totalEmotion, Integer totalEmotionPercent, String feedback, Emotions emotions, Integer negativeSentencePercent, Integer positiveSentencePercent, Integer totalSentenceCount) {
+    public Report(Integer totalEmotion, Integer totalEmotionPercent, String feedback, Emotions emotions, Integer negativeSentencePercent, Integer positiveSentencePercent, Integer totalSentenceCount, List<EmotionSentence> emotionSentences) {
         this.totalEmotion = totalEmotion;
         this.totalEmotionPercent = totalEmotionPercent;
         this.feedback = feedback;
@@ -55,17 +58,22 @@ public class Report {
         this.negativeSentencePercent = negativeSentencePercent;
         this.positiveSentencePercent = positiveSentencePercent;
         this.totalSentenceCount = totalSentenceCount;
+        this.emotionSentences = emotionSentences;
     }
 
     public static Report of(ResponseEntity<Object> responseEntity, Diary diary) throws JsonProcessingException {
         Map<String, Object> map = parseResponse(responseEntity);
         Map<String, Integer> predictions = getPredictions(map);
-
+        List<EmotionSentence> sentences = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : predictions.entrySet()) {
+            log.info("{} {}", entry.getKey(), entry.getValue());
+            sentences.add(new EmotionSentence((String) entry.getKey(), (Integer) entry.getValue()));
+        }
         int[] emotionCounts = countEmotions(predictions);
         int totalSentences = calculateTotalSentences(emotionCounts);
         int[] emotionPercentages = calculateEmotionPercentages(emotionCounts, totalSentences);
 
-        return createReport(emotionPercentages, totalSentences, diary);
+        return createReport(emotionPercentages, totalSentences, diary, sentences);
     }
 
     private static Map<String, Object> parseResponse(ResponseEntity<Object> responseEntity) throws JsonProcessingException {
@@ -100,7 +108,7 @@ public class Report {
         return emotionPercentages;
     }
 
-    private static Report createReport(int[] emotionPercentages, int totalSentences, Diary diary) {
+    private static Report createReport(int[] emotionPercentages, int totalSentences, Diary diary, List<EmotionSentence> sentences) {
         int totalEmotionIndex = findMaxEmotionIndex(emotionPercentages);
         diary.updateTotalEmotion(totalEmotionIndex);
         int totalEmotionPercent = emotionPercentages[totalEmotionIndex];
@@ -114,7 +122,7 @@ public class Report {
         int positiveSentencePercent = emotionPercentages[0];
         int negativeSentencePercent = 100 - positiveSentencePercent - emotionPercentages[5];
 
-        return new Report(totalEmotionIndex, totalEmotionPercent, feedback, emotions, negativeSentencePercent, positiveSentencePercent, totalSentences);
+        return new Report(totalEmotionIndex, totalEmotionPercent, feedback, emotions, negativeSentencePercent, positiveSentencePercent, totalSentences, sentences);
     }
 
     private static int findMaxEmotionIndex(int[] emotionPercentages) {
@@ -141,7 +149,8 @@ public class Report {
                 report.getFeedback(),
                 report.getTotalSentenceCount(),
                 report.getPositiveSentencePercent(),
-                report.getNegativeSentencePercent()
+                report.getNegativeSentencePercent(),
+                report.getEmotionSentences()
         );
     }
 }
