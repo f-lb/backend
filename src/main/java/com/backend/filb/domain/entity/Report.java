@@ -55,7 +55,7 @@ public class Report {
         this.totalSentenceCount = totalSentenceCount;
     }
 
-    public static Report from(ResponseEntity<Object> responseEntity) throws JsonProcessingException {
+    public static Report of(ResponseEntity<Object> responseEntity, Diary diary) throws JsonProcessingException {
         Map<String, Object> map = parseResponse(responseEntity);
         Map<String, Integer> predictions = getPredictions(map);
 
@@ -63,7 +63,7 @@ public class Report {
         int totalSentences = calculateTotalSentences(emotionCounts);
         int[] emotionPercentages = calculateEmotionPercentages(emotionCounts, totalSentences);
 
-        return createReport(emotionPercentages, totalSentences);
+        return createReport(emotionPercentages, totalSentences, diary);
     }
 
     private static Map<String, Object> parseResponse(ResponseEntity<Object> responseEntity) throws JsonProcessingException {
@@ -98,8 +98,9 @@ public class Report {
         return emotionPercentages;
     }
 
-    private static Report createReport(int[] emotionPercentages, int totalSentences) {
+    private static Report createReport(int[] emotionPercentages, int totalSentences, Diary diary) {
         int totalEmotionIndex = findMaxEmotionIndex(emotionPercentages);
+        diary.updateTotalEmotion(totalEmotionIndex);
         int totalEmotionPercent = emotionPercentages[totalEmotionIndex];
         String feedback = generateFeedback(emotionPercentages);
 

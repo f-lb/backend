@@ -3,6 +3,7 @@ package com.backend.filb.presentation;
 import com.backend.filb.application.DiaryService;
 import com.backend.filb.application.JwtService;
 import com.backend.filb.dto.request.DiaryRequest;
+import com.backend.filb.dto.response.DiaryMonthlyResponse;
 import com.backend.filb.dto.response.DiaryResponse;
 import com.backend.filb.dto.response.ReportResultResponse;
 import com.backend.filb.infra.EmotionApi;
@@ -36,12 +37,13 @@ public class DiaryController {
         return ResponseEntity.ok().headers(headers).body(reportResultResponse);
     }
 
-    @PostMapping("/read")
-    public ResponseEntity<List<DiaryResponse>> readAll(
-            @RequestHeader("Authorization") String token
+    @PostMapping("/monthly/{month}")
+    public ResponseEntity<List<DiaryMonthlyResponse>> getMonthlyDiaries(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("month") Integer month
     ){
         String jwtId = jwtService.getMemberEmail();
-        List<DiaryResponse> diaryList = diaryService.readAll(jwtId);
+        List<DiaryMonthlyResponse> diaryList = diaryService.getMonthlyDiaries(jwtId, month);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Message", "success");
         return ResponseEntity.ok().headers(headers).body(diaryList);

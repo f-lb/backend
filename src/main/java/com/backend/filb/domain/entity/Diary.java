@@ -12,17 +12,22 @@ import java.time.LocalDateTime;
 public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long diaryId;
+    private Long diaryId;
 
     @Column(nullable = false)
-    LocalDateTime createdDate;
+    private LocalDateTime createdDate;
 
     @Column(nullable = false,length = 1000)
-    String content;
+    private String content;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn()
-    Report report;
+    private Report report;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn
+    private Member member;
+    private Integer totalEmotion;
 
     public Diary(LocalDateTime createdDate, String content) {
         this.createdDate = createdDate;
@@ -37,4 +42,7 @@ public class Diary {
         this.report = report;
     }
 
+    public void updateTotalEmotion(int totalEmotionIndex) {
+        this.totalEmotion = totalEmotionIndex;
+    }
 }

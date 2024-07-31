@@ -7,15 +7,14 @@ import com.backend.filb.domain.repository.DiaryRepository;
 import com.backend.filb.domain.repository.MemberRepository;
 import com.backend.filb.domain.repository.ReportRepository;
 import com.backend.filb.dto.request.DiaryRequest;
+import com.backend.filb.dto.response.DiaryMonthlyResponse;
 import com.backend.filb.dto.response.DiaryResponse;
 import com.backend.filb.dto.response.ReportResultResponse;
 import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -40,7 +39,7 @@ public class DiaryService {
     public ReportResultResponse save(DiaryRequest diaryRequest, String jwtId) throws JsonProcessingException {
         Diary diary = mapDiaryRequestToDiary(diaryRequest);
         ResponseEntity<Object> emotionResponse = emotionApi.getEmotionResponse(diaryRequest.content());
-        Report report = Report.from(emotionResponse);
+        Report report = Report.of(emotionResponse, diary);
         reportRepository.save(report);
         diary.setReport(report);
         diary = diaryRepository.save(diary);
@@ -50,13 +49,9 @@ public class DiaryService {
         return mapToReportResult(diary, report);
     }
 
-    public List<DiaryResponse> readAll(String jwtId) {
+    public List<DiaryMonthlyResponse> getMonthlyDiaries(String jwtId, Integer month) {
         Member member = memberService.findByEmail(jwtId);
-        List<Diary> diaryList = member.getDiaryList();
-        return diaryList.stream()
-                .map(this::mapDiaryToDiaryResponse)
-                .toList();
-        return null;
+        return diaryRepository.findDiariesByMemberAndMonth(member.getEmail(), month);
     }
 
     public DiaryResponse readById(String jwtEmail,Long id) {
