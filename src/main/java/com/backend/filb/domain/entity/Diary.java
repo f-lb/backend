@@ -20,7 +20,8 @@ public class Diary {
     @Column(nullable = false)
     private LocalDateTime createdDate;
 
-    @Column(nullable = false,length = 1000)
+    @Lob
+    @Column(nullable = false, length = 1000)
     private String content;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

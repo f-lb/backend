@@ -54,7 +54,10 @@ public class DiaryService {
 
     public List<DiaryMonthlyResponse> getMonthlyDiaries(String jwtId, int month) {
         Member member = memberService.findByEmail(jwtId);
-        return diaryRepository.findDiariesByMemberAndMonth(member, month);
+        List<DiaryMonthlyResponse> response = diaryRepository.findDiariesByMemberAndMonth(member, month);
+        return response.stream()
+                .map(DiaryMonthlyResponse::updatePrefix)
+                .toList();
     }
 
     public String getFeedBack(String content) throws JsonProcessingException {
