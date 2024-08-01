@@ -26,6 +26,7 @@ public class Report {
     @Column(nullable = false)
     private Integer totalEmotionPercent;
 
+    @Lob
     @Column(nullable = false)
     private String feedback;
 
@@ -42,6 +43,7 @@ public class Report {
     @Column(nullable = false)
     private Integer totalSentenceCount;
 
+    @Lob
     @Convert(converter = EmotionSentence.EmotionSentenceConverter.class)
     private List<EmotionSentence> emotionSentences = new ArrayList<>();
 
