@@ -2,14 +2,11 @@ package com.backend.filb.domain.entity;
 
 import com.backend.filb.domain.entity.vo.EmotionSentence;
 import com.backend.filb.dto.response.ReportResultResponse;
-import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 
 import java.util.*;
@@ -52,10 +49,9 @@ public class Report {
 
     }
 
-    public Report(Integer totalEmotion, Integer totalEmotionPercent, String feedback, Emotions emotions, Integer negativeSentencePercent, Integer positiveSentencePercent, Integer totalSentenceCount, List<EmotionSentence> emotionSentences) {
+    public Report(Integer totalEmotion, Integer totalEmotionPercent, Emotions emotions, Integer negativeSentencePercent, Integer positiveSentencePercent, Integer totalSentenceCount, List<EmotionSentence> emotionSentences) {
         this.totalEmotion = totalEmotion;
         this.totalEmotionPercent = totalEmotionPercent;
-        this.feedback = feedback;
         this.emotions = emotions;
         this.negativeSentencePercent = negativeSentencePercent;
         this.positiveSentencePercent = positiveSentencePercent;
@@ -115,7 +111,6 @@ public class Report {
         int totalEmotionIndex = findMaxEmotionIndex(emotionPercentages);
         diary.updateTotalEmotion(totalEmotionIndex);
         int totalEmotionPercent = emotionPercentages[totalEmotionIndex];
-        String feedback = generateFeedback(diary.getContent());
 
         Emotions emotions = new Emotions(
                 emotionPercentages[0], emotionPercentages[1], emotionPercentages[2],
@@ -125,7 +120,7 @@ public class Report {
         int positiveSentencePercent = emotionPercentages[0];
         int negativeSentencePercent = 100 - positiveSentencePercent - emotionPercentages[5];
 
-        return new Report(totalEmotionIndex, totalEmotionPercent, feedback, emotions, negativeSentencePercent, positiveSentencePercent, totalSentences, sentences);
+        return new Report(totalEmotionIndex, totalEmotionPercent, emotions, negativeSentencePercent, positiveSentencePercent, totalSentences, sentences);
     }
 
     private static int findMaxEmotionIndex(int[] emotionPercentages) {
@@ -136,21 +131,6 @@ public class Report {
             }
         }
         return maxIndex;
-    }
-
-    private static String generateFeedback(String content) throws JsonProcessingException {
-        RestTemplateBuilder restTemplateBuilder = new RestTemplateBuilder();
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        EmotionApi emotionApi = new EmotionApi(restTemplateBuilder,objectMapper);
-
-        ResponseEntity<Object> feedBack = emotionApi.getReport(content);
-        String responseBody = objectMapper.writeValueAsString(feedBack.getBody());
-
-        JsonNode rootNode = objectMapper.readTree(responseBody);
-        String extractedContent = rootNode.path("choices").get(0).path("message").path("content").asText();
-
-        return extractedContent;
     }
 
     public static ReportResultResponse toDto(Diary diary, Report report) {
