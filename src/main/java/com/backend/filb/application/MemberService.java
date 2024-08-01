@@ -49,6 +49,6 @@ public class MemberService {
     }
 
     public Member findByEmail(String jwtId) {
-        return memberRepository.findByEmail(jwtId).get();
+        return memberRepository.findByEmail(jwtId).orElseThrow(() -> new RuntimeException("이메일을 찾을 수 없습니다."));
     }
 }

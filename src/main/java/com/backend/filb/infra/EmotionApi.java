@@ -44,7 +44,8 @@ public class EmotionApi {
     }
 
     public ResponseEntity<Object> getReport(String content) throws JsonProcessingException {
-        String messages = content + " 위 일기에 대해서 ~때문에 ~ 감정을 느끼신 것 같다 형식으로 감정을 공감해주고 해결책을 제시해주는 방향으로 이야기해줘.";
+        String messages = content + "위 일기에 대해서 ~때문에 ~ 감정을 느끼신 것 같다 형식으로 감정을 공감해주고 가벼운 해결책을 제시해주는 방향으로 이야기해줘.\n" +
+                "넌 이제부터 나의 엄청 친한 친구야. 존댓말 쓰지마. 친구에게 무심하게 대하듯, 챗봇 심심이의 말투로 말해.";
 
         Message message = new Message("user",messages);
         List<Message> messageList = new LinkedList<>();

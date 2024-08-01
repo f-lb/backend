@@ -7,6 +7,7 @@ import com.backend.filb.domain.repository.DiaryRepository;
 import com.backend.filb.domain.repository.MemberRepository;
 import com.backend.filb.domain.repository.ReportRepository;
 import com.backend.filb.dto.request.DiaryRequest;
+import com.backend.filb.dto.response.DiaryMonthlyResponse;
 import com.backend.filb.dto.response.DiaryResponse;
 import com.backend.filb.dto.response.ReportResultResponse;
 import com.backend.filb.infra.EmotionApi;
@@ -14,10 +15,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -40,17 +39,22 @@ public class DiaryService {
 
     @Transactional
     public ReportResultResponse save(DiaryRequest diaryRequest, String jwtId) throws JsonProcessingException {
-        Diary diary = mapDiaryRequestToDiary(diaryRequest);
+        Member member = memberService.findByEmail(jwtId);
+        Diary diary = mapDiaryRequestToDiary(diaryRequest, member);
         ResponseEntity<Object> emotionResponse = emotionApi.getEmotionResponse(diaryRequest.content());
-        Report report = Report.from(emotionResponse,diaryRequest.content());
+        Report report = Report.of(emotionResponse, diary);
         report.setFeedback(getFeedBack(diaryRequest.content()));
         reportRepository.save(report);
         diary.setReport(report);
         diary = diaryRepository.save(diary);
-        Member member = memberService.findByEmail(jwtId);
         member.setDiary(diary);
         memberRepository.save(member);
         return mapToReportResult(diary, report);
+    }
+
+    public List<DiaryMonthlyResponse> getMonthlyDiaries(String jwtId, int month) {
+        Member member = memberService.findByEmail(jwtId);
+        return diaryRepository.findDiariesByMemberAndMonth(member, month);
     }
 
     public String getFeedBack(String content) throws JsonProcessingException {
@@ -64,47 +68,24 @@ public class DiaryService {
         return extractedContent;
     }
 
-    public List<DiaryResponse> readAll(String jwtId) {
-//        Member member = memberService.findByEmail(jwtId);
-//        List<Diary> diaryList = member.getDiaryList();
-//        return diaryList.stream()
-//                .map(this::mapDiaryToDiaryResponse)
-//                .toList();
-        return null;
-    }
-
-    public DiaryResponse readById(String jwtEmail,Long id) {
+    public DiaryResponse readById(String jwtEmail, Long id) {
         Diary diary = diaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("일기 정보가 없습니다."));
-        Member member = memberService.findByEmail(jwtEmail);
-        List<Diary> diaryList = member.getDiaryList();
-//        if (diaryList.contains(diary)) {
-//            return mapDiaryToDiaryResponse(diary);
-//        }
-        throw new NoSuchElementException("해당 일기에 대한 권한이 없습니다.");
+        return new DiaryResponse(diary.getDiaryId(), diary.getCreatedDate(), diary.getTitle(), diary.getContent(), diary.getTotalEmotion());
     }
 
     public void delete(String jwtId, Long id) {
         Diary diary = diaryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("일기 정보가 없습니다."));
-        Member member = memberService.findByEmail(jwtId);
-        List<Diary> diaryList = member.getDiaryList();
-//        if (diaryList.contains(diary)) {
-//            diaryList.remove(diary);
-//            member.setDiaryList(diaryList);
-//            memberRepository.save(member);
-//            diaryRepository.deleteById(id);
-//            return;
-//        }
-        throw new NoSuchElementException("해당 일기에 대한 권한이 없습니다.");
+        diaryRepository.delete(diary);
     }
 
-    public Diary mapDiaryRequestToDiary(DiaryRequest diaryRequest){
-        return new Diary(diaryRequest.date(), diaryRequest.content());
+    public Diary mapDiaryRequestToDiary(DiaryRequest diaryRequest, Member member){
+        return new Diary(diaryRequest.title(), diaryRequest.date(), diaryRequest.content(), member);
     }
 
     public ReportResultResponse mapToReportResult(Diary diary, Report report){
-        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent());
+        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getTotalEmotionPercent(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent(), report.getEmotionSentences());
     }
 
 }

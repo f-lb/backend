@@ -1,5 +1,7 @@
 package com.backend.filb.domain.entity;
 
+import com.backend.filb.domain.entity.vo.EmotionSentence;
+import com.backend.filb.dto.response.ReportResultResponse;
 import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -7,14 +9,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Entity
 @Getter
@@ -28,7 +26,10 @@ public class Report {
     @Column(nullable = false)
     private Integer totalEmotion;
 
-    @Column(nullable = false,length = 1000)
+    @Column(nullable = false)
+    private Integer totalEmotionPercent;
+
+    @Column(nullable = false)
     private String feedback;
 
     @Embedded
@@ -44,42 +45,38 @@ public class Report {
     @Column(nullable = false)
     private Integer totalSentenceCount;
 
+    @Convert(converter = EmotionSentence.EmotionSentenceConverter.class)
+    private List<EmotionSentence> emotionSentences = new ArrayList<>();
+
     public Report() {
 
     }
 
-    public Report(Integer totalEmotion, String feedback, Emotions emotions, Integer negativeSentencePercent, Integer positiveSentencePercent, Integer totalSentenceCount) {
+    public Report(Integer totalEmotion, Integer totalEmotionPercent, String feedback, Emotions emotions, Integer negativeSentencePercent, Integer positiveSentencePercent, Integer totalSentenceCount, List<EmotionSentence> emotionSentences) {
         this.totalEmotion = totalEmotion;
+        this.totalEmotionPercent = totalEmotionPercent;
         this.feedback = feedback;
         this.emotions = emotions;
         this.negativeSentencePercent = negativeSentencePercent;
         this.positiveSentencePercent = positiveSentencePercent;
         this.totalSentenceCount = totalSentenceCount;
+        this.emotionSentences = emotionSentences;
     }
 
-    public void setFeedback(String feedback) {
-        this.feedback = feedback;
-    }
-
-    public static Report from(ResponseEntity<Object> responseEntity, String content) throws JsonProcessingException {
+    public static Report of(ResponseEntity<Object> responseEntity, Diary diary) throws JsonProcessingException {
         Map<String, Object> map = parseResponse(responseEntity);
 
         Map<String, Integer> predictions = getPredictions(map);
+        List<EmotionSentence> sentences = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : predictions.entrySet()) {
+            sentences.add(new EmotionSentence((String) entry.getKey(), (Integer) entry.getValue()));
+        }
         int[] emotionCounts = countEmotions(predictions);
 
         int totalSentences = calculateTotalSentences(emotionCounts);
         int[] emotionPercentages = calculateEmotionPercentages(emotionCounts, totalSentences);
 
-        int totalEmotion = calculateTotalEmotion(emotionPercentages);
-        String feedback = "";
-
-        Emotions emotions = new Emotions(emotionPercentages[0], emotionPercentages[1], emotionPercentages[2],
-                emotionPercentages[3], emotionPercentages[4], emotionPercentages[5]);
-
-        int positiveSentencePercent = emotionPercentages[0];
-        int negativeSentencePercent = 100 - emotionPercentages[0] - emotionPercentages[5];
-
-        return new Report(totalEmotion, feedback, emotions, negativeSentencePercent, positiveSentencePercent, totalSentences);
+        return createReport(emotionPercentages, totalSentences, diary, sentences);
     }
 
     private static Map<String, Object> parseResponse(ResponseEntity<Object> responseEntity) throws JsonProcessingException {
@@ -114,9 +111,31 @@ public class Report {
         return emotionPercentages;
     }
 
-    private static int calculateTotalEmotion(int[] emotionPercentages) {
-        RestTemplate restTemplate = new RestTemplate();
-        return 0;
+    private static Report createReport(int[] emotionPercentages, int totalSentences, Diary diary, List<EmotionSentence> sentences) throws JsonProcessingException {
+        int totalEmotionIndex = findMaxEmotionIndex(emotionPercentages);
+        diary.updateTotalEmotion(totalEmotionIndex);
+        int totalEmotionPercent = emotionPercentages[totalEmotionIndex];
+        String feedback = generateFeedback(diary.getContent());
+
+        Emotions emotions = new Emotions(
+                emotionPercentages[0], emotionPercentages[1], emotionPercentages[2],
+                emotionPercentages[3], emotionPercentages[4], emotionPercentages[5]
+        );
+
+        int positiveSentencePercent = emotionPercentages[0];
+        int negativeSentencePercent = 100 - positiveSentencePercent - emotionPercentages[5];
+
+        return new Report(totalEmotionIndex, totalEmotionPercent, feedback, emotions, negativeSentencePercent, positiveSentencePercent, totalSentences, sentences);
+    }
+
+    private static int findMaxEmotionIndex(int[] emotionPercentages) {
+        int maxIndex = 0;
+        for (int i = 1; i < NUMBER_OF_EMOTION; i++) {
+            if (emotionPercentages[i] > emotionPercentages[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
     }
 
     private static String generateFeedback(String content) throws JsonProcessingException {
@@ -127,13 +146,28 @@ public class Report {
 
         ResponseEntity<Object> feedBack = emotionApi.getReport(content);
         String responseBody = objectMapper.writeValueAsString(feedBack.getBody());
-        System.out.println(responseBody);
 
-        // Parse the response to get the content field
         JsonNode rootNode = objectMapper.readTree(responseBody);
         String extractedContent = rootNode.path("choices").get(0).path("message").path("content").asText();
 
         return extractedContent;
     }
 
+    public static ReportResultResponse toDto(Diary diary, Report report) {
+        return new ReportResultResponse(
+                diary.getCreatedDate(),
+                report.getEmotions(),
+                report.getTotalEmotion(),
+                report.getTotalEmotionPercent(),
+                report.getFeedback(),
+                report.getTotalSentenceCount(),
+                report.getPositiveSentencePercent(),
+                report.getNegativeSentencePercent(),
+                report.getEmotionSentences()
+        );
+    }
+
+    public void setFeedback(String feedBack) {
+        this.feedback = feedBack;
+    }
 }
