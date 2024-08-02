@@ -1,5 +1,6 @@
 package com.backend.filb.application;
 
+import com.backend.filb.exception.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -33,18 +34,15 @@ public class JwtService {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
                 .getRequest();
         String token = request.getHeader("Authorization");
-
-        System.out.println("token = " + token);
-
         return token.replace("Bearer ", "");
     }
 
     public void checkTokenValidation(String accessToken){
         if (accessToken == null) {
-            throw new JwtException("토큰이 유효하지 않습니다.");
+            throw new UnauthorizedException("토큰이 유효하지 않습니다.");
         }
         if (accessToken.isEmpty()) {
-            throw new JwtException("토큰이 유효하지 않습니다.");
+            throw new UnauthorizedException("토큰이 유효하지 않습니다.");
         }
     }
 
@@ -59,7 +57,7 @@ public class JwtService {
                     .build()
                     .parseSignedClaims(accessToken);
         } catch (JwtException e) {
-            throw new RuntimeException(e);
+            throw new UnauthorizedException("토큰이 유효하지 않습니다.");
         }
 
         return jws.getPayload()

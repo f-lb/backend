@@ -9,6 +9,7 @@ import com.backend.filb.domain.repository.ReportRepository;
 import com.backend.filb.dto.request.DiaryRequest;
 import com.backend.filb.dto.response.DiaryMonthlyResponse;
 import com.backend.filb.dto.response.DiaryResponse;
+import com.backend.filb.dto.response.MonthlyEmotionResponse;
 import com.backend.filb.dto.response.ReportResultResponse;
 import com.backend.filb.infra.EmotionApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,6 +19,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -49,7 +52,13 @@ public class DiaryService {
         diary = diaryRepository.save(diary);
         member.setDiary(diary);
         memberRepository.save(member);
-        return mapToReportResult(diary, report);
+        List<MonthlyEmotionResponse> monthlyEmotionResponses = getMonthlyEmotion(diaryRequest.date());
+        return mapToReportResult(diary, report, monthlyEmotionResponses);
+    }
+
+    private List<MonthlyEmotionResponse> getMonthlyEmotion(LocalDateTime endDate) {
+        LocalDateTime startDate = endDate.minusDays(30);
+        return diaryRepository.findReportIdsWithin30Days(startDate, endDate);
     }
 
     public List<DiaryMonthlyResponse> getMonthlyDiaries(String jwtId, int month) {
@@ -87,8 +96,8 @@ public class DiaryService {
         return new Diary(diaryRequest.title(), diaryRequest.date(), diaryRequest.content(), member);
     }
 
-    public ReportResultResponse mapToReportResult(Diary diary, Report report){
-        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getTotalEmotionPercent(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent(), report.getEmotionSentences());
+    public ReportResultResponse mapToReportResult(Diary diary, Report report, List<MonthlyEmotionResponse> monthlyEmotionResponses){
+        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getTotalEmotionPercent(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent(), report.getEmotionSentences(), monthlyEmotionResponses);
     }
 
 }

@@ -15,6 +15,7 @@ public record ReportResultResponse(
     Integer totalSentenceCount,
     Integer positiveSentencePercent,
     Integer negativeSentencePercent,
-    List<EmotionSentence> emotionSentences
+    List<EmotionSentence> emotionSentences,
+    List<MonthlyEmotionResponse> monthlyEmotionResponse
 ) {
 }

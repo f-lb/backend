@@ -1,6 +1,7 @@
 package com.backend.filb.domain.entity;
 
 import com.backend.filb.domain.entity.vo.EmotionSentence;
+import com.backend.filb.dto.response.MonthlyEmotionResponse;
 import com.backend.filb.dto.response.ReportResultResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -134,7 +135,7 @@ public class Report {
         return maxIndex;
     }
 
-    public static ReportResultResponse toDto(Diary diary, Report report) {
+    public static ReportResultResponse toDto(Diary diary, Report report, List<MonthlyEmotionResponse> monthlyEmotionResponses) {
         return new ReportResultResponse(
                 diary.getCreatedDate(),
                 report.getEmotions(),
@@ -144,7 +145,8 @@ public class Report {
                 report.getTotalSentenceCount(),
                 report.getPositiveSentencePercent(),
                 report.getNegativeSentencePercent(),
-                report.getEmotionSentences()
+                report.getEmotionSentences(),
+                monthlyEmotionResponses
         );
     }
 
