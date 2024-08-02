@@ -24,7 +24,7 @@ public class Diary {
     private String content;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn()
+    @JoinColumn(name = "report_id")
     private Report report;
 
     @ManyToOne(fetch = FetchType.LAZY)

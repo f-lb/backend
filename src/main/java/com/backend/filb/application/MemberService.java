@@ -5,6 +5,7 @@ import com.backend.filb.domain.entity.Member;
 import com.backend.filb.domain.repository.MemberRepository;
 import com.backend.filb.dto.request.MemberLoginRequest;
 import com.backend.filb.dto.request.MemberRequest;
+import com.backend.filb.exception.UnauthorizedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class MemberService {
         Member member = mapMemberRequestToMember(memberRequest);
         memberRepository.findByEmail(memberRequest.email())
                 .ifPresent(existingMember -> {
-                    throw new IllegalArgumentException("이미 존재하는 회원입니다.");
+                    throw new UnauthorizedException("이미 존재하는 회원입니다.");
                 });
         member.validatePassword(memberRequest.password());
         return memberRepository.save(member);
@@ -33,9 +34,9 @@ public class MemberService {
 
     public String login(MemberLoginRequest memberRequest) {
         Member dbMember = memberRepository.findByEmail(memberRequest.email())
-                .orElseThrow(() -> new NoSuchElementException("로그인에 실패했습니다 다시 시도해주세요"));
+                .orElseThrow(() -> new UnauthorizedException("존재하지 않는 회원입니다."));
         if (!dbMember.checkPassword(memberRequest.password())) {
-            throw new NoSuchElementException("로그인에 실패하였습니다. 다시 시도해주세요");
+            throw new UnauthorizedException("비밀번호가 일치하지 않습니다.");
         }
         return jwtService.createJWT(memberRequest.email());
     }
@@ -49,6 +50,6 @@ public class MemberService {
     }
 
     public Member findByEmail(String jwtId) {
-        return memberRepository.findByEmail(jwtId).orElseThrow(() -> new RuntimeException("이메일을 찾을 수 없습니다."));
+        return memberRepository.findByEmail(jwtId).orElseThrow(() -> new UnauthorizedException("이메일을 찾을 수 없습니다."));
     }
 }
