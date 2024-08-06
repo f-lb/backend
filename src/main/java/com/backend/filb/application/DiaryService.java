@@ -19,7 +19,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -52,13 +51,13 @@ public class DiaryService {
         diary = diaryRepository.save(diary);
         member.setDiary(diary);
         memberRepository.save(member);
-        List<MonthlyEmotionResponse> monthlyEmotionResponses = getMonthlyEmotion(diaryRequest.date());
+        List<MonthlyEmotionResponse> monthlyEmotionResponses = getMonthlyEmotion(member, diaryRequest.date());
         return mapToReportResult(diary, report, monthlyEmotionResponses);
     }
 
-    private List<MonthlyEmotionResponse> getMonthlyEmotion(LocalDateTime endDate) {
+    private List<MonthlyEmotionResponse> getMonthlyEmotion(Member member, LocalDateTime endDate) {
         LocalDateTime startDate = endDate.minusDays(30);
-        return diaryRepository.findReportIdsWithin30Days(startDate, endDate);
+        return diaryRepository.findReportIdsWithin30Days(startDate, endDate, member);
     }
 
     public List<DiaryMonthlyResponse> getMonthlyDiaries(String jwtId, int month) {
