@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record ReportResultResponse(
+    Long diaryId,
     LocalDateTime createdDate,
     Emotions emotions,
     Integer totalEmotionType,
