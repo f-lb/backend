@@ -137,6 +137,7 @@ public class Report {
 
     public static ReportResultResponse toDto(Diary diary, Report report, List<MonthlyEmotionResponse> monthlyEmotionResponses) {
         return new ReportResultResponse(
+                diary.getDiaryId(),
                 diary.getCreatedDate(),
                 report.getEmotions(),
                 report.getTotalEmotion(),

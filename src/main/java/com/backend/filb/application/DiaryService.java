@@ -96,7 +96,7 @@ public class DiaryService {
     }
 
     public ReportResultResponse mapToReportResult(Diary diary, Report report, List<MonthlyEmotionResponse> monthlyEmotionResponses){
-        return new ReportResultResponse(diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getTotalEmotionPercent(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent(), report.getEmotionSentences(), monthlyEmotionResponses);
+        return new ReportResultResponse(diary.getDiaryId(), diary.getCreatedDate(), report.getEmotions(), report.getTotalEmotion(), report.getTotalEmotionPercent(), report.getFeedback(), report.getTotalSentenceCount(), report.getPositiveSentencePercent(), report.getNegativeSentencePercent(), report.getEmotionSentences(), monthlyEmotionResponses);
     }
 
 }
